@@ -3,6 +3,7 @@ from numpy import ndarray
 import PIL
 from PIL import ImageDraw, ImageFont
 from PIL.Image import Image
+import json
 
 # COCO 17 points
 point_name = ["nose", "left_eye", "right_eye",
@@ -45,14 +46,26 @@ def draw_keypoints(img: Image,
             font = ImageFont.truetype(font, font_size)
         except IOError:
             font = ImageFont.load_default()
-
+    with open ('/home/jvm/HRNet/person_keypoints.json' , 'r') as f:
+        a = json.load(f)
+    c = a['skeleton']
     draw = ImageDraw.Draw(img)
+        #points = [(10, 10), (50, 10), (50, 50), (10, 50), (10, 10)]
+    
     for i, (point, score) in enumerate(zip(keypoints, scores)):
         if score > thresh and np.max(point) > 0:
+            draw.line([(keypoints[c[i][0]-1][0],keypoints[c[i][0]-1][1]), (keypoints[c[i][1]-1][0],keypoints[c[i][1]-1][1])], fill=point_color[i], width=5)
             draw.ellipse([point[0] - r, point[1] - r, point[0] + r, point[1] + r],
                          fill=point_color[i],
                          outline=(255, 255, 255))
             if draw_text:
                 draw.text((point[0] + r, point[1] + r), text=point_name[i], font=font)
+
+           
+
+
+    #draw.line([(10, 10), (50, 10), (50, 50), (10, 50), (10, 10)], fill=(255, 0, 0), width=100)
+    
+        
 
     return img
